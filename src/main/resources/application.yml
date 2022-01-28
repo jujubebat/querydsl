@@ -11,6 +11,7 @@ spring:
       hibernate:
         # show_sql: true # System.out.print로 로그 출력하는 설정
         format_sql: true
+        use_sql_comments: true
 logging.level: # 로거로 로그 출력하는 설정
   org.hibernate.SQL: debug
   org.hibernate.type: trace # sql 인자까지 보이도록 설정
