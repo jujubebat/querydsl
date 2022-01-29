@@ -439,8 +439,8 @@ public class QuerydslBasicTest {
     }
 
     @Test
-    public void constant(){
-         List<Tuple> result = queryFactory
+    public void constant() {
+        List<Tuple> result = queryFactory
                 .select(member.username, Expressions.constant("A"))
                 .from(member)
                 .fetch();
@@ -451,7 +451,7 @@ public class QuerydslBasicTest {
     }
 
     @Test
-    public void concat(){
+    public void concat() {
         // {username}_{age}
         List<String> result = queryFactory
                 .select(member.username.concat("_").concat(member.age.stringValue()))
@@ -463,4 +463,33 @@ public class QuerydslBasicTest {
             System.out.println("s = " + s);
         }
     }
+
+    @Test
+    public void simpleProjection() {
+        List<String> result = queryFactory
+                .select(member.username)
+                .from(member)
+                .fetch();
+
+        for (String s : result) {
+            System.out.println("s = " + s);
+        }
+    }
+
+    // Tuple은 querydsl에서 제공하는 클래스이기 때문에, 서비스레이어가 queryDsl에 종속되지 않도록 레포지토리 레이어에서만 쓰는게 좋다.
+    @Test
+    public void tupleProjection() {
+        List<Tuple> result = queryFactory
+                .select(member.username, member.age)
+                .from(member)
+                .fetch();
+
+        for (Tuple tuple : result) {
+            String username = tuple.get(member.username);
+            Integer age = tuple.get(member.age);
+            System.out.println("username = " + username);
+            System.out.println("age = " + age);
+        }
+    }
+
 }
