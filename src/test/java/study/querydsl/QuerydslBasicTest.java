@@ -657,7 +657,7 @@ public class QuerydslBasicTest {
 
     @Test
     //@Commit
-    public void bulkUpdate(){
+    public void bulkUpdate() {
         //member1 = 10 -> 비회원
         //member2 = 20 -> 비회원
         //member3 = 30 -> 유지
@@ -687,7 +687,7 @@ public class QuerydslBasicTest {
     }
 
     @Test
-    public void bulkAdd(){
+    public void bulkAdd() {
         queryFactory
                 .update(member)
                 .set(member.age, member.age.add(1))
@@ -701,12 +701,45 @@ public class QuerydslBasicTest {
     }
 
     @Test
-    public void bulkDelete(){
+    public void bulkDelete() {
         long count = queryFactory
                 .delete(member)
                 .where(member.age.gt(18))
                 .execute();
     }
 
+    @Test
+    public void sqlFunction() {
+        List<String> result = queryFactory
+                .select(
+                        Expressions.stringTemplate(
+                                "function('replace', {0}, {1}, {2})",
+                                member.username, "member", "M"))
+                .from(member)
+                .fetch();
+
+        for (String s : result) {
+            System.out.println("s = " + s);
+        }
+    }
+
+    @Test
+    public void sqlFunction2() {
+        List<String> result = queryFactory
+                .select(member.username)
+                .from(member)
+//                .where(member.username.eq( // member 이름을 모두 소문자로 바꾼후 비교
+//                        Expressions.stringTemplate("function('lower',{0})", member.username)
+//                ))
+                .where(member.username.eq(member.username.lower())) // 이렇게 편하게 할 수 있다.
+                .fetch();
+
+        for (String s : result) {
+            System.out.println("s = " + s);
+        }
+    }
 }
+
+
+
 
