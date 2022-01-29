@@ -655,5 +655,58 @@ public class QuerydslBasicTest {
         return usernameEq(usernameCond).and(ageEq(ageCond));
     }
 
+    @Test
+    //@Commit
+    public void bulkUpdate(){
+        //member1 = 10 -> 비회원
+        //member2 = 20 -> 비회원
+        //member3 = 30 -> 유지
+        //member4 = 40 -> 유지
+
+        // 벌크연산은 업데이트 결과를 DB에만 반영한다. 영속성컨텍스트의 상태는 변하지 않는다.
+        // 벌크연산을 하면, 영속성 컨텍스트의 상태와 DB 상태의 불일치가 발생한다.
+        // 벌크연산이후 다시 DB에서 엔티티를 조회하더라도, 영속성 컨텍스트에 해당 엔티티가 있으면,
+        // 영속성 컨텍스트의 엔티티가 조회된다.(이 경우 DB에서 조회한 엔티티는 그냥 버림. 영속성 컨텍스트가 항상 우선권을 가짐 repeatable read)
+        long count = queryFactory
+                .update(member)
+                .set(member.username, "비회원")
+                .where(member.age.lt(28))
+                .execute();
+
+        // 따라서 벌크 연산 이후, flush, clear를 호출해서 영속성 컨텍스트와 DB의 엔티티 불일치를 맞춰준다.
+        em.flush();
+        em.clear();
+
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .fetch();
+
+        for (Member member1 : result) {
+            System.out.println("member1 = " + member1);
+        }
+    }
+
+    @Test
+    public void bulkAdd(){
+        queryFactory
+                .update(member)
+                .set(member.age, member.age.add(1))
+                .execute();
+
+
+        queryFactory
+                .update(member)
+                .set(member.age, member.age.multiply(5))
+                .execute();
+    }
+
+    @Test
+    public void bulkDelete(){
+        long count = queryFactory
+                .delete(member)
+                .where(member.age.gt(18))
+                .execute();
+    }
+
 }
 
